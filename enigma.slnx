@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="enigma.client/enigma.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="enigma.Server/enigma.Server.csproj" />
+</Solution>
