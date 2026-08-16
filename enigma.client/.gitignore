@@ -1,0 +1,29 @@
+# Dependencies
+/node_modules
+
+# Angular build output
+/dist
+/tmp
+/out-tsc
+/.angular/cache
+
+# IDE
+.vs/
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+
+# Environment / secrets
+.env
+
+# Logs
+npm-debug.log
+yarn-error.log
+
+# System files
+.DS_Store
+Thumbs.db
