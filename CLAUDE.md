@@ -27,7 +27,11 @@ dotnet run                  # run (Development profile per launchSettings.json)
 dotnet watch run            # run with hot reload
 ```
 
-No server-side test project exists yet.
+```bash
+dotnet test                  # run xUnit tests (service layer, mocked repositories — no DB needed)
+```
+
+`enigma.Server.Tests` covers the service layer (xUnit + Moq); repositories/controllers aren't unit-tested — they're thin wrappers over EF Core / the service layer respectively, verified via the app running end-to-end instead.
 
 ### enigma.client (Angular)
 
@@ -54,6 +58,7 @@ Launch via the solution (Visual Studio "https" launch profile, or `dotnet run` f
 - Controllers live under `enigma.Server/Controllers/`, one file per controller, using the standard `[ApiController][Route("[controller]")]` pattern (see `WeatherForecastController.cs`, currently the only endpoint).
 - Angular app is still the CLI-generated skeleton — `AppModule`/`AppComponent`/`AppRoutingModule` under `enigma.client/src/app/`, no feature modules yet.
 - Client build output goes to `enigma.client/dist/enigma.client/browser/` (set via `BuildOutputFolder` in `enigma.client.esproj`); the server's static-file serving expects the published SPA there in non-dev environments.
+- Data access follows Repository + Service layering: `Data/EnigmaDbContext.cs` (EF Core, SQL Server provider) is only ever touched by `Repositories/` classes (e.g. `TodoItemRepository`); `Services/` classes (e.g. `TodoItemService`) depend on repository interfaces, not the DbContext directly; controllers depend on service interfaces, not repositories. Migrations live under `Data/Migrations/`; run them via the repo-local `dotnet-ef` tool (`dotnet tool restore` once, then `dotnet ef migrations add <Name> --output-dir Data/Migrations` / `dotnet ef database update` from `enigma.Server/`). Local dev connects to LocalDB via `ConnectionStrings:DefaultConnection` in `appsettings.Development.json` (no credentials in the string, so it's safe outside User Secrets); Azure SQL wiring is a separate future task.
 
 ## Azure
 
@@ -63,6 +68,12 @@ Per `.github/copilot-instructions.md`: for any Azure-related task, use Azure MCP
 - Repository pattern + Service layer (no direct DbContext access from controllers)
 - EF Core, code-first (migrations, not database-first)
 - Unit tests mandatory for the service layer (xUnit + Moq or NSubstitute)
+
+## Repository pattern
+DO NOT use generic IRepository<T>. Each repository is specific
+per aggregate/entity (e.g. IUserRepository, IOrderRepository),
+with explicit methods for the required queries — not a generic
+wrapper over DbSet.
 
 ## Database
 - Azure SQL Server
